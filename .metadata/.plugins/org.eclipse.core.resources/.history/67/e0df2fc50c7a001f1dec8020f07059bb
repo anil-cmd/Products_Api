@@ -1,0 +1,70 @@
+package com.chatgpt.project.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.chatgpt.project.entity.Product;
+import com.chatgpt.project.service.ProductService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
+@RestController
+public class ProductController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+	
+	@Autowired
+	private ProductService productService;
+	
+	@GetMapping("/product/{id}")
+	public ResponseEntity<Product> fetchProduct(@PathVariable("id") Long id) {
+		Product product = productService.getProduct(id);
+		if(product != null) {
+			return new ResponseEntity<Product>(product, HttpStatus.OK);
+		}else {
+			logger.error("product is not available in the database");
+			return new ResponseEntity<Product>(product, HttpStatus.NO_CONTENT);
+		}	
+	}
+	
+	@GetMapping("/products")
+	public ResponseEntity<Object> fetchAllProducts() {
+		
+		List<Product> allProducts = productService.getAllProducts();
+		if(!allProducts.isEmpty()) {
+			return new ResponseEntity<Object>(allProducts, HttpStatus.OK);
+		}else {
+			logger.error("products are not available in the database");
+			return new ResponseEntity<Object>("products are not available in the database", HttpStatus.NO_CONTENT);
+		}	
+		
+	}
+	
+	@PostMapping("/product")
+	public ResponseEntity<Object> insertProduct(@RequestBody Product product) {
+		
+		try {
+			if(product != null) {
+				Product savedProduct = productService.createProduct(product);
+				return new ResponseEntity<Object>(savedProduct, HttpStatus.CREATED);
+			}else {
+				return new ResponseEntity<Object>("you havent provided proper product details", HttpStatus.BAD_REQUEST);
+			}
+			
+		} catch (IllegalArgumentException e) {
+			logger.error("body is given empty", e.getMessage());
+		}
+		
+		
+	}
+	
+}

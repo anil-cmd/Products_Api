@@ -1,0 +1,5 @@
+package com.chatgpt.project.service;
+
+public class ProductServiceImpl {
+
+}

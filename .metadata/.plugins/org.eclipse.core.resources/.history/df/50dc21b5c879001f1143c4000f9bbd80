@@ -1,0 +1,5 @@
+package com.chatgpt.project.controller;
+
+public class ProductController {
+
+}
